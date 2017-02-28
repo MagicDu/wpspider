@@ -43,7 +43,9 @@ def get_news(link):
 	bsObj=BeautifulSoup(html,'html.parser')
 	title=bsObj.h1.get_text()
 	#print('标题:',title)
-	tags=bsObj.find('meta',{'name':'keywords'}).attrs['content']
+	tags_list=bsObj.find('meta',{'name':'keywords'}).attrs['content']
+	l=re.split(',',tags_list)
+	tags=[item for item in filter(lambda x:x != '', l)]
 	#print('标签:',tags)
 	category=bsObj.title.get_text().split('_')[1]
 	#print('分类',category)
@@ -68,20 +70,24 @@ def send_news(yourwebsit,username,password,news):
 	post.content=news.content
 	post.post_status ='publish'
 	post.terms_names={
-		'post_tag':re.split(',',news.tags),
+		'post_tag':news.tags,
 		'category':[news.category]
 	}
 	wp.call(NewPost(post))
 
 
 
-
+#将文章标题写入文件
+def write_file(str_title):
+	with open('/mysoft/py/title.txt','a') as f:
+		f.write(str_title)
 
 #以金融之家为例
 l=get_urls('http://www.jrzj.com',3)
 for link in l:
 	news=get_news(link)
 	#print(news.title) #打印文章标题
+	write_file(news.title)
 	time.sleep(5)
 	send_news('http://blog.abc.com/xmlrpc.php','username','password',news)
 
