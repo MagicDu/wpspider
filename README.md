@@ -11,6 +11,7 @@
 * 只是以某单一的网站为例，抓取其他网站，请自行重写``get_news(link)``,``get_urls(url,n)``函数
 * 保存文章标题到本地，需要在``write_file(str_title)``指定你的文件路径
 * crontab自动执行脚本，需要Python3.5 安装python-crontab,**仅适用于linux,windows和Mac请自行写自动执行脚本** 运行脚本前，请指定将要运行的爬虫目录，以及运行时间，具体参考crontab的说明
+* sh脚本适用于crontab无法直接执行python脚本的问题，需要用crontab执行sh脚本，sh脚本调用python脚本
 ```bash
     sudo pip3 install python-crontab
 ```
@@ -36,6 +37,8 @@
     2.增加将文章标题保存到本地文件的功能 write_file(str_title)
 
     3.增加了crontab 自动执行脚本 “createCronTab.py”
+#### 2017-03-01
+    1.增加wp.sh脚本，如果服务器上的crontab直接执行python脚本出错，需要用crontab调用sh脚本，sh脚本调用python脚本（主要是crontab执行环境变量与系统环境变量存在差异）
 
 ### Bug说明
 
