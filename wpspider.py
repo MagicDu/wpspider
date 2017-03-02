@@ -82,12 +82,32 @@ def write_file(str_title):
 	with open('/mysoft/py/title.txt','a') as f:
 		f.write(str_title)
 
-#以金融之家为例
-l=get_urls('http://www.jrzj.com',3)
-for link in l:
-	news=get_news(link)
-	#print(news.title) #打印文章标题
-	write_file(news.title)
-	time.sleep(5)
-	send_news('http://blog.abc.com/xmlrpc.php','username','password',news)
+#发送电子邮件
+def send_email(mail_user,mail_postfix,sender,receiver,smtpserver,message,subject,username,password):
+	try:
+		msg=MIMEText(message,'plain','utf-8')
+		me="Wpspider"+"<"+mail_user+"@"+mail_postfix+">" 
+		msg['From']=Header(me)
+		msg['Subject']=Header(subject,'utf-8')
+		smtp = smtplib.SMTP()
+		smtp.connect(smtpserver)
+		smtp.login(username,password)
+		smtp.sendmail(sender, receiver, msg.as_string())
+		smtp.quit()
+		print ("邮件发送成功")
+	except smtplib.SMTPException as e:
+		print ("Error: 无法发送邮件")
+	
 
+#以金融之家为例
+
+try:
+	l=get_urls('http://www.jrzj.com',3)
+	for link in l:
+		news=get_news(link)
+		#print(news.title) #打印文章标题
+		write_file(news.title)
+		time.sleep(5)
+		send_news('http://blog.abc.com/xmlrpc.php','username','password',news)
+except Exception as e:
+	send_email('user','sina.com','user@sina.com','xxxx@qq.com','smtp.sina.com','您的爬虫出现异常\n'+e,'wpspider','user@sina.com','abc123')
