@@ -5,9 +5,12 @@ from bs4 import BeautifulSoup
 from wordpress_xmlrpc import Client,WordPressPost
 from wordpress_xmlrpc.methods.posts import GetPosts,NewPost
 from wordpress_xmlrpc.methods.users import GetUserInfo
+from email.mime.text import MIMEText
+from email.header import Header
 import re
 import time
-
+import smtplib
+import traceback
 
 #新闻类
 class News(object):
@@ -83,6 +86,20 @@ def write_file(str_title):
 		f.write(str_title)
 
 #发送电子邮件
+'''
+mail_user   :发送者名称
+mail_postfix:邮箱后缀
+sender      :发送者
+receiver    :接收者
+smtpserver  :smtp服务器地址
+message     :消息
+subject     :主题
+username    :用户名
+password    :密码
+example: 以新浪邮箱为例
+send_email('user','sina.com','user@sina.com','xxxx@qq.com','smtp.sina.com','您的爬虫出现异常\n'+m,'wpspider','user@sina.com','abc123')
+'''
+
 def send_email(mail_user,mail_postfix,sender,receiver,smtpserver,message,subject,username,password):
 	try:
 		msg=MIMEText(message,'plain','utf-8')
@@ -100,14 +117,15 @@ def send_email(mail_user,mail_postfix,sender,receiver,smtpserver,message,subject
 	
 
 #以金融之家为例
-
+#接收邮箱可以设置为139邮箱，以便接收短信提醒
 try:
-	l=get_urls('http://www.jrzj.com',3)
+	l=get_urls('http://www.jrzj.com',1)
 	for link in l:
 		news=get_news(link)
 		#print(news.title) #打印文章标题
-		write_file(news.title)
+		write_file(news.title+'\n')
 		time.sleep(5)
 		send_news('http://blog.abc.com/xmlrpc.php','username','password',news)
 except Exception as e:
-	send_email('user','sina.com','user@sina.com','xxxx@qq.com','smtp.sina.com','您的爬虫出现异常\n'+e,'wpspider','user@sina.com','abc123')
+	m=traceback.format_exc()
+	send_email('user','sina.com','user@sina.com','xxxx@139.com','smtp.sina.com','您的爬虫出现异常\n'+m,'wpspider','user@sina.com','abc123')
