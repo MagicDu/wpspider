@@ -82,7 +82,7 @@ def send_news(yourwebsit,username,password,news):
 
 #将文章标题写入文件
 def write_file(str_title):
-	with open('/mysoft/py/title.txt','a') as f:
+	with open('title.txt','a') as f:
 		f.write(str_title)
 
 #发送电子邮件
@@ -90,7 +90,7 @@ def write_file(str_title):
 mail_user   :发送者名称
 mail_postfix:邮箱后缀
 sender      :发送者
-receiver    :接收者
+receiver    :接收者(可以设置为139邮箱)
 smtpserver  :smtp服务器地址
 message     :消息
 subject     :主题
