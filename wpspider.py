@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 #-*-coding : utf-8 -*-
 from urllib.request import urlopen
+from urllib.request import urlretrieve
 from bs4 import BeautifulSoup
 from wordpress_xmlrpc import Client,WordPressPost
+from wordpress_xmlrpc.compat import xmlrpc_client
+from wordpress_xmlrpc.methods import media, posts
 from wordpress_xmlrpc.methods.posts import GetPosts,NewPost
 from wordpress_xmlrpc.methods.users import GetUserInfo
 from email.mime.text import MIMEText
@@ -11,15 +14,15 @@ import re
 import time
 import smtplib
 import traceback
-
+import os
 #新闻类
 class News(object):
-	def __init__(self,title,tags,category,content):
+	def __init__(self,title,tags,category,content,image_name):
 		self.title = title     #标题
 		self.tags=tags         #标签
 		self.category=category #分类
 		self.content=content   #内容
-
+		self.image_name=image_name
 #获取最新的新闻链接列表
 
 '''
@@ -52,10 +55,48 @@ def get_news(link):
 	#print('标签:',tags)
 	category=bsObj.title.get_text().split('_')[1]
 	#print('分类',category)
-	content=bsObj.find('div',{'class':'news_content'}).prettify()
+	#content=bsObj.find('div',{'class':'news_content'}).prettify()
+	content=bsObj.find('div',{'class':'news_content'})
 	#print('内容:',content)
-	news=News(title,tags,category,content)
+	#查找图片
+	a_tag=content.find('img')
+	#print(a_tag)
+	image_url=a_tag.attrs['src']
+	image_name=os.path.basename(image_url).split('!')[0]
+	#下载图片
+	get_image(image_url,image_name)
+	#删除标签
+	a_tag.extract()
+	news=News(title,tags,category,content.prettify(),image_name)
 	return news
+
+#下载图片
+'''
+将图片保存到本地
+'''
+def get_image(image_url,image_name):
+	os.makedirs('images',exist_ok=True)
+	#print('下载了--->'+image_name)
+	urlretrieve(image_url,'images/'+image_name)
+
+
+#上传图片
+'''
+根据图片路径将图片上传到wordpress
+
+返回attachment_id
+'''
+def upload_image(image_name,client):
+	data={
+		'name':image_name,
+		'type':'image/jpeg'
+	}
+	with open('images/'+image_name, 'rb') as img:
+		data['bits'] = xmlrpc_client.Binary(img.read())
+	response = client.call(media.UploadFile(data))
+	#print('上传了--->'+image_name)
+	attachment_id = response['id']
+	return attachment_id
 
 #发送新闻到wordpress
 
@@ -68,10 +109,12 @@ news      : 新闻对象
 
 def send_news(yourwebsit,username,password,news):
 	wp=Client(yourwebsit,username,password)
+	attachment_id=upload_image(news.image_name,wp)
 	post=WordPressPost()
 	post.title=news.title
 	post.content=news.content
 	post.post_status ='publish'
+	post.thumbnail = attachment_id
 	post.terms_names={
 		'post_tag':news.tags,
 		'category':[news.category]
