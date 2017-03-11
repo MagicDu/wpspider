@@ -14,7 +14,10 @@ import re
 import time
 import smtplib
 import traceback
-import os
+import os,random
+import requests
+
+user_agents=list()
 #新闻类
 class News(object):
 	def __init__(self,title,tags,category,content,image_name):
@@ -32,21 +35,46 @@ links:返回链接列表
 '''
 def get_urls(url,n=1):
 	links=[]
-	html=urlopen(url)
-	bsObj=BeautifulSoup(html,'html.parser')
+	length = len(user_agents)
+	index=random.randint(0,length-1)
+	user_agent = user_agents[index]
+	headers={
+		'Referer': 'http://www.jrzj.com',
+		'Host':'www.jrzj.com',
+		'User-Agent':user_agent,
+		'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+	}
+	bsObj=requests.session()
+	bsObj=BeautifulSoup(bsObj.get(url,headers=headers).content,'html.parser')
 	for link in bsObj.find('div',{'class':'main2_left_fir_left'}).findAll('a')[0:n]:
 		if 'href' in link.attrs:
 			links.append(link.attrs['href'])
 	return links
 
+def load_user_agent():
+	fp = open('user_agents', 'r')
+	line  = fp.readline().strip('\n')
+	while(line):
+		user_agents.append(line)
+		line = fp.readline().strip('\n')
+	fp.close()
 
 #根据文章链接切分文章
 '''
 这里是以金融之家为例的,抓取其他资讯请自行分析网站文章重写 get_news(link)
 '''
 def get_news(link):
-	html=urlopen(link)
-	bsObj=BeautifulSoup(html,'html.parser')
+	length = len(user_agents)
+	index=random.randint(0,length-1)
+	user_agent = user_agents[index]
+	headers={
+		'Referer': 'http://www.jrzj.com',
+		'Host':'www.jrzj.com',
+		'User-Agent':user_agent,
+		'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+	}
+	bsObj=requests.session()
+	bsObj=BeautifulSoup(bsObj.get(link,headers=headers).content,'html.parser')
 	title=bsObj.h1.get_text()
 	#print('标题:',title)
 	tags_list=bsObj.find('meta',{'name':'keywords'}).attrs['content']
