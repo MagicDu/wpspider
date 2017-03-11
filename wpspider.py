@@ -51,6 +51,7 @@ def get_urls(url,n=1):
 			links.append(link.attrs['href'])
 	return links
 
+#加载 user_agents配置文件
 def load_user_agent():
 	fp = open('user_agents', 'r')
 	line  = fp.readline().strip('\n')
@@ -190,6 +191,7 @@ def send_email(mail_user,mail_postfix,sender,receiver,smtpserver,message,subject
 #以金融之家为例
 #接收邮箱可以设置为139邮箱，以便接收短信提醒
 try:
+	load_user_agent()
 	l=get_urls('http://www.jrzj.com',1)
 	for link in l:
 		news=get_news(link)
