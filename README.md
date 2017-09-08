@@ -1,5 +1,7 @@
 ## 利用python-wordpress-xmlrpc库整合Python爬虫，实现自动化发布文章到自己的wordpress
 
+### 新版本的 多站点适配 请查看 https://github.com/MagicDu/mywpspider
+
 ### 环境说明
 * WordPress 3.4+ OR WordPress 3.0-3.3 with the XML-RPC Modernization Plugin.
 * Python 3.x  
@@ -66,7 +68,7 @@
 #### 爬虫适应性提升
     1.多网站适应
 
-**未完待续。。。**
+
 
 
 
