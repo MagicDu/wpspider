@@ -1,9 +1,5 @@
 ## 利用python-wordpress-xmlrpc库整合Python爬虫，实现自动化发布文章到自己的wordpress
 
-#### load_user_agent 存在bug 还没时间改，啊啊啊啊啊
-
-
-
 ### 新版本的 多站点适配 请查看 https://github.com/MagicDu/mywpspider
 
 ### 环境说明
