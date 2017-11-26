@@ -26,6 +26,15 @@ class News(object):
 		self.category=category #分类
 		self.content=content   #内容
 		self.image_name=image_name
+
+# 根据url 获取主机名
+def getHost(url):
+    reg = r'^https?:\/\/([a-z0-9\-\.]+)[\/\?]?'
+    m = re.match(reg, url)
+    uri = m.groups()[0] if m else ''
+    host=uri[uri.rfind('.', 0, uri.rfind('.')) + 1:]
+    return host
+
 #获取最新的新闻链接列表
 
 '''
